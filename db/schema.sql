@@ -1,6 +1,8 @@
+DROP TABLE IF EXISTS votes; -- must drop votes first because it depends on everything else
 DROP TABLE IF EXISTS candidates; -- must drop candidates first bc it depends on arties (has a foreign key) order matters!
 DROP TABLE IF EXISTS parties;
 DROP TABLE IF EXISTS voters;
+
 
 CREATE TABLE parties (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -14,7 +16,7 @@ CREATE TABLE candidates (
     last_name VARCHAR(30) NOT NULL,
     party_id INTEGER,
     industry_connected BOOLEAN NOT NULL,
-    CONSTRAINT fk_party FOREIGN KEY (party_id) REFERENCES parties(id) ON DELETE SET NULL
+    CONSTRAINT fk_party FOREIGN KEY (party_id) REFERENCES parties(id) ON DELETE SET NULL -- delete forign record and set field to null
 );
 
 CREATE TABLE voters (
@@ -24,3 +26,15 @@ CREATE TABLE voters (
     email VARCHAR(50) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE votes (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    voter_id INTEGER NOT NULL,
+    candidate_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uc_voter UNIQUE (voter_id), 
+    CONSTRAINT fk_voter FOREIGN KEY (voter_id) REFERENCES voters(id) ON DELETE CASCADE, 
+    CONSTRAINT fk_candidate FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE
+);
+-- values inserted must be unique so no double votes
+-- foreign keys, deleting fk will remove entire row
